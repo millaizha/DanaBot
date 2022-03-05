@@ -104,7 +104,7 @@ client.on('messageCreate', async (message) =>
                 message.attachments.forEach(attachments =>
                 {
                     const url = attachments.url;
-                    client.channels.cache.get('949445939603599410').send("File: " + url);
+                    client.channels.cache.get(process.env.CHANNEL).send("File: " + url);
                 });
 
                 message.reply
