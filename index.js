@@ -6,6 +6,10 @@ dotenv.config();
 
 const client = new Discord.Client
 ({
+    partials:
+    [
+        "CHANNEL"
+    ],
     intents:
     [
         "GUILDS",
@@ -62,7 +66,7 @@ client.on('messageCreate', async (message) =>
 
     const file = message.attachments.first()?.url;
     
-    if (message.channel.type === 'DM' && !message.author.bot)
+    if (message.guild === null && !message.author.bot)
     {
         if (!file)
         {
