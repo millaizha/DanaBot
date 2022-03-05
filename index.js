@@ -1,10 +1,10 @@
-const Discord = require('discord.js');
+const Client = require('discord.js');
 const dotenv = require('dotenv');
-const fetch = require('node-fetch');
+const fs = require('node:fs');
 
 dotenv.config();
 
-const client = new Discord.Client
+const client = new Client.Client
 ({
     partials:
     [
@@ -14,13 +14,25 @@ const client = new Discord.Client
     [
         "GUILDS",
         "GUILD_MESSAGES",
+        "GUILD_MESSAGE_REACTIONS",
         "DIRECT_MESSAGES",
         "DIRECT_MESSAGE_REACTIONS",
         "DIRECT_MESSAGE_TYPING"
     ]
 });
 
+client.commands = new Client.Collection();
+
 const prefix = 'dana!';
+
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+for (file of commandFiles) 
+{
+    const command = require(`./commands/${file}`);
+ 
+    client.commands.set(command.name, command);
+};
 
 client.on("error", console.error);
 
@@ -42,81 +54,29 @@ client.on('messageCreate', async (message) =>
 {
     if (message.content.toLowerCase() === 'god dana')
     {
-        message.reply
-        ({
-            content: 'Yes, my child?',
-        })
+        message.reply('Yes, my child?')
     }
 
     if (message.content.toLowerCase().match('god dana') !== null)
     {
-        message.reply
-        ({
-            content: 'I hear my name.',
-        })
+        message.reply('I hear my name.')
     }
 
     if (message.content.toLowerCase().match('tiu') !== null && !message.author.bot)
     {
-        message.reply
-        ({
-            content: 'The almighty Messiah Tiu',
-        })
+        message.reply('The almighty Messiah Tiu')
+    }
+
+    if (message.content.toLowerCase().match('imgg') !== null && !message.author.bot)
+    {
+        message.reply('iJSD BEST ORG')
     }
 
     const file = message.attachments.first()?.url;
     
     if (message.guild === null && !message.author.bot)
     {
-        if (!file)
-        {
-            return message.reply
-            ({
-                content: 'This bot is for the **submission** of source codes. Please attach a file.\n\nIf you have any question regarding a problem set, feel free to use the inquiry channel in the iJSD Server.\n\nIf this message pops up even though you\'ve attached a file, please contact an officer at the iJSD server. Thank you.'
-            });
-        }
-
-        try
-        {
-            message.reply
-            ({
-                content: 'Reading the file! Fetching data..'
-            });
-
-            const response = await fetch(file);
-            const text = await response.text();
-
-            if (!response.ok)
-            {
-                message.reply
-                ({
-                    content: 'There was an error with fetching the file. Please try again\n\nIf you think this is wrong, please contact an officer at the iJSD server. Thank you.'
-                });
-            }
-
-            if (text)
-            {
-                const member = message.author.username;
-
-                client.channels.cache.get(process.env.CHANNEL).send("Username: " + member);
-                client.channels.cache.get(process.env.CHANNEL).send("Message: " + message.content);
-
-                message.attachments.forEach(attachments =>
-                {
-                    const url = attachments.url;
-                    client.channels.cache.get(process.env.CHANNEL).send("File: " + url);
-                });
-
-                message.reply
-                ({
-                    content: 'Thank you for your submission! It will be looked on by the officers now.'
-                });
-            }
-        }
-        catch (error)
-        {
-            console.log(error)
-        }
+        client.commands.get('DM').execute(client, message);
     }
 
     if(message.content.startsWith(prefix)) 
@@ -125,47 +85,8 @@ client.on('messageCreate', async (message) =>
         .trim()
         .substring(prefix.length)
         .split(/\s+/);
-        console.log(cmd, args);
 
-
-        if (cmd === 'help')
-        {
-            const helpEmbed = new Discord.MessageEmbed()
-            .setColor("RANDOM")
-            .setTitle('Prefix: `dana!`')
-            .setAuthor('Command List', message.author.displayAvatarURL())
-            
-            .addFields
-            ({
-                name: 'About this bot',
-                value: 'A Dana bot using JavaScript'
-            },
-            {
-                name: 'Chat',
-                value: '`imgg` | `signofthecross`'
-            },
-            {
-                name: 'Submit your problem set answer',
-                value: '`submit`'
-            });
-
-            message.reply({ embeds: [helpEmbed] });
-        }
-        else if (cmd === 'signofthecross') 
-        {
-            message.reply('In the name of SirTiu(), SirRaden(), and the iJSD(). Amen!')
-        }
-
-        else if (cmd === 'imgg')
-        {
-            message.reply('iJSD BEST ORG')
-        }
-        
-        else if (cmd === 'submit')
-        {
-            message.author.send('You may send your submission here..')
-            message.delete(1000);
-        }
+        client.commands.get(cmd).execute(prefix, client, message, args);
     }
 })
 
