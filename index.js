@@ -71,8 +71,6 @@ client.on('messageCreate', async (message) =>
     {
         message.reply('iJSD BEST ORG')
     }
-
-    const file = message.attachments.first()?.url;
     
     if (message.guild === null && !message.author.bot)
     {

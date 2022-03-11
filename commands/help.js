@@ -26,6 +26,10 @@ module.exports =
                 value: '` `'
             },
             {
+                name: 'Misc',
+                value: '`math` | `translate`'
+            },
+            {
                 name: 'Submit your problem set answer',
                 value: '`submit`'
             });

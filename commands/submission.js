@@ -74,7 +74,7 @@ module.exports =
 
                 const filter = (reaction, user) => 
                 {
-                    return ['✅','⛔'].includes(reaction.emoji.name) && user.id === message.author.id;
+                    return ['✅','⛔'].includes(reaction.emoji.name) && user.id === process.env.PRES || user.id === process.env.VPE || user.id === process.env.VPI || user.id === process.env.SEC || user.id === process.env.TRES || user.id === process.env.PRO;
                 }
 
                 m.awaitReactions
